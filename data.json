@@ -1,0 +1,11 @@
+{
+  "playlistsIn" : [
+    "spotify:playlist:4PtkpvrscU07NQtogMIgM1",
+    "spotify:playlist:37i9dQZF1DX9tPFwDMOaN1",
+    "spotify:playlist:37i9dQZF1DX1LU4UHKqdtg",
+    "spotify:playlist:37i9dQZF1DX4FcAKI5Nhzq",
+    "spotify:playlist:37i9dQZF1DX9IALXsyt8zk"
+  ],
+  "playlistOut" : "spotify:playlist:4PtkpvrscU07NQtogMIgM1",
+  "blacklist" : ["spotify:playlist:0UZEiveTQRAV9QXffVppVB"]
+}
