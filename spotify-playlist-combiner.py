@@ -52,22 +52,27 @@ def load_data():
     return json.load(data_file)
 
 
-# Load data from json file
-data = load_data()
 
-input_playlists = data["playlistsIn"]
-playlist_out = data["playlistOut"]
-blacklist = data["blacklist"]
+def main():
+    # Load data from json file
+    data = load_data()
 
-songs = get_songs_from_playlists(input_playlists)
+    input_playlists = data["playlistsIn"]
+    playlist_out = data["playlistOut"]
+    blacklist = data["blacklist"]
 
-sp.playlist_remove_all_occurrences_of_items(playlist_out, songs)
-sp.playlist_add_items(playlist_out, songs)
+    songs = get_songs_from_playlists(input_playlists)
 
-# Remove blacklisted songs
-sp.playlist_remove_all_occurrences_of_items(playlist_out, get_songs_from_playlists(blacklist))
+    sp.playlist_remove_all_occurrences_of_items(playlist_out, songs)
+    sp.playlist_add_items(playlist_out, songs)
 
-playlist_songs = sp.playlist(playlist_out)['tracks']['items']
+    # Remove blacklisted songs
+    sp.playlist_remove_all_occurrences_of_items(playlist_out, get_songs_from_playlists(blacklist))
 
-# For Debug:
-# print_dates(playlist_songs)
+    playlist_songs = sp.playlist(playlist_out)['tracks']['items']
+
+    # For Debug:
+    # print_dates(playlist_songs)
+
+if __name__ == "__main__":
+    main()
