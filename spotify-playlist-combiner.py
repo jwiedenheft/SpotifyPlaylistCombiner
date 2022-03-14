@@ -1,10 +1,11 @@
-import sys
+#!/usr/bin/env python3
+
 import json
 from datetime import date
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-scope = "playlist-read-private playlist-modify-private"
+scope = "playlist-read-private playlist-modify-private playlist-modify-public"
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 
 
@@ -12,6 +13,7 @@ def get_songs_from_playlists(playlists_in):
     songs_in = []
     for pl in playlists_in:
         playlist = sp.playlist(pl)
+        print(f"    Getting songs from {playlist['name']}...")
         for item in playlist['tracks']['items']:
             track = item['track']
             track_date = date.fromisoformat(track['album']['release_date'])
@@ -45,29 +47,44 @@ def print_dates(list_in):
 
 
 def load_data():
-    file_name = "data.json"
+    print("Loading data...")
+    file_name = 'data.json'
     # if len(sys.argv) > 0:
     #    file_name = sys.argv[0]
     data_file = open(file_name)
     return json.load(data_file)
 
 
-# Load data from json file
-data = load_data()
+def main():
+    # Load data from json file
+    data = load_data()
 
-input_playlists = data["playlistsIn"]
-playlist_out = data["playlistOut"]
-blacklist = data["blacklist"]
+    input_playlists = data["playlistsIn"]
+    playlist_out = data["playlistOut"]
+    blacklist = data["blacklist"]
 
-songs = get_songs_from_playlists(input_playlists)
+    print("Beginning initial playlist concatenation.")
+    songs = get_songs_from_playlists(input_playlists)
+    print("Completed initial playlist concatenation.")
+    print("Beginning blacklist removal.")
+    blacklist_songs = get_songs_from_playlists(blacklist)
+    songs_to_add = [song for song in songs if song not in blacklist_songs]
+    print("Blacklist removal complete.")
 
-sp.playlist_remove_all_occurrences_of_items(playlist_out, songs)
-sp.playlist_add_items(playlist_out, songs)
+    print("Beginning clearing output playlist.")
+    old_songs = get_songs_from_playlists({playlist_out})
+    sp.playlist_remove_all_occurrences_of_items(playlist_out, old_songs)
+    print("Completed clearing output playlist.")
 
-# Remove blacklisted songs
-sp.playlist_remove_all_occurrences_of_items(playlist_out, get_songs_from_playlists(blacklist))
+    print(f"Adding {len(songs_to_add)} songs...")
+    while len(songs_to_add) > 100:
+        first_100_songs = songs_to_add[0:99]
+        rest_of_songs = songs_to_add[100:len(songs_to_add)]
+        sp.playlist_add_items(playlist_out, first_100_songs)
+        songs_to_add = rest_of_songs
+    sp.playlist_add_items(playlist_out, songs_to_add)
+    print("All songs added. Enjoy your playlist!")
 
-playlist_songs = sp.playlist(playlist_out)['tracks']['items']
 
-# For Debug:
-# print_dates(playlist_songs)
+if __name__ == "__main__":
+    main()
