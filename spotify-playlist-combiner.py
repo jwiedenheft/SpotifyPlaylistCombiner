@@ -16,6 +16,7 @@ def get_songs_from_playlists(playlists_in):
         print(f"    Getting songs from {playlist['name']}...")
         for item in playlist['tracks']['items']:
             track = item['track']
+            if track == None: continue
             track_date = date.fromisoformat(track['album']['release_date'])
             if track_date.year == 2022 and ((track['uri'], track_date) not in songs_in):
                 try_add(songs_in, track, track_date)
