@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import datetime
 import json
 from datetime import date
 import spotipy
@@ -17,7 +17,13 @@ def get_songs_from_playlists(playlists_in):
         for item in playlist['tracks']['items']:
             track = item['track']
             if track == None: continue
-            track_date = date.fromisoformat(track['album']['release_date'])
+            # print(f"Adding {track['name']} from {playlist['name']}. The date is {track['album']['release_date']}")
+            track_date = track['album']['release_date']
+            try:
+                track_date = date.fromisoformat(track_date)
+            except:
+                # Fixes a weird edge case where a date field is assigned as just a year
+                track_date = date.fromisoformat("2022-01-01")
             if track_date.year == 2022 and ((track['uri'], track_date) not in songs_in):
                 try_add(songs_in, track, track_date)
     return detuple(songs_in)
